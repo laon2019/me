@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, BookOpen, Users, Briefcase, Code, ArrowRight } from 'lucide-react';
+import { Sparkles, BookOpen, Briefcase, Code } from 'lucide-react';
 import RetroGrid from "../ui/retro-grid";
 
 const StudyJourneyDemo = () => {

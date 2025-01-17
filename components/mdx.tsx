@@ -3,10 +3,10 @@ import Link from "next/link";
 import React from "react";
 
 function Table({ data }: { data: { headers: string[]; rows: string[][] } }) {
-  let headers = data.headers.map((header, index) => (
+  const headers = data.headers.map((header, index) => (
     <th key={index}>{header}</th>
   ));
-  let rows = data.rows.map((row, index) => (
+  const rows = data.rows.map((row, index) => (
     <tr key={index}>
       {row.map((cell, cellIndex) => (
         <td key={cellIndex}>{cell}</td>
@@ -24,12 +24,18 @@ function Table({ data }: { data: { headers: string[]; rows: string[][] } }) {
   );
 }
 
-function CustomLink(props: any) {
-  let href = props.href;
+interface CustomLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+  href?: string;
+}
+
+function CustomLink(props: CustomLinkProps) {
+  const { href = "" } = props;
 
   if (href.startsWith("/")) {
+    const linkProps = { ...props };
+    delete linkProps.href; // Remove href to avoid duplicate props warning
     return (
-      <Link href={href} {...props}>
+      <Link href={href} {...linkProps}>
         {props.children}
       </Link>
     );
@@ -42,8 +48,9 @@ function CustomLink(props: any) {
   return <a target="_blank" rel="noopener noreferrer" {...props} />;
 }
 
-function RoundedImage(props: any) {
-  return <Image alt={props.alt} className="rounded-lg" {...props} />;
+function RoundedImage(props: React.ComponentProps<typeof Image>) {
+  const { alt, ...rest } = props;
+  return <Image className="rounded-lg" alt={alt ?? ""} {...rest} />;
 }
 
 // This replaces rehype-slug
@@ -51,16 +58,16 @@ function slugify(str: string) {
   return str
     .toString()
     .toLowerCase()
-    .trim() // Remove whitespace from both ends of a string
-    .replace(/\s+/g, "-") // Replace spaces with -
-    .replace(/&/g, "-and-") // Replace & with 'and'
-    .replace(/[^\w\-]+/g, "") // Remove all non-word characters except for -
-    .replace(/\-\-+/g, "-"); // Replace multiple - with single -
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/&/g, "-and-")
+    .replace(/[^a-z0-9-]/g, "")
+    .replace(/-+/g, "-");
 }
 
-function createHeading(level: number) {
-  const Heading = ({ children }: { children: React.ReactNode }) => {
-    let slug = slugify(children as string);
+function createHeading(level: 1 | 2 | 3 | 4 | 5 | 6) {
+  const Heading = ({ children }: { children: string }) => {
+    const slug = slugify(children);
     return React.createElement(
       `h${level}`,
       { id: slug },

@@ -1,3 +1,4 @@
+import React from 'react'; 
 import { GlobeIcon, MailIcon } from "lucide-react";
 
 export type IconProps = React.HTMLAttributes<SVGElement>;
@@ -49,7 +50,7 @@ export const Icons = {
       />
     </svg>
   ),
-  medium: (props: IconProps) => (
+  medium: () => (
     <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
       <title>download</title>
       <defs>
