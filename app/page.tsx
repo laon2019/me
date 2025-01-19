@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Switch from '@/components/switch/Switch';
 import Loading from '@/components/loading/Loading';
-import StudyJourneyDemo from '@/components/RadioRetro/RadioRetro';
 import Strengths from '@/components/Stredngth/Stredngth';
 import Weaknesses from '@/components/Weaknesses/Weaknesses';
 
@@ -17,10 +16,10 @@ const Loader = () => {
   const [messageIndex, setMessageIndex] = useState(0);
   const [switchVisible, setSwitchVisible] = useState(true);
   const [showMessages, setShowMessages] = useState(false);
-  const [showJourney, setShowJourney] = useState(false);
   const [showStrengths, setShowStrengths] = useState(false);
   const [showWeaknesses, setShowWeaknesses] = useState(false);
   const [showResult, setShowResult] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const backgrounds = [
     'bg-white',
@@ -31,12 +30,14 @@ const Loader = () => {
 
   const mobileMessages = [
     "안녕하세요\n프론트엔드 개발자\n조규범입니다.",
-    "저에 대해\n소개하겠습니다."
+    "함께 성장하며\n새로운 가치를 만들어가는\n개발자입니다.",
+    "저에 대해\n소개하겠습니다.",
   ];
-
+  
   const desktopMessages = [
     "안녕하세요 프론트엔드 개발자 조규범입니다.",
-    "저에 대해 소개하겠습니다."
+    "함께 성장하며 새로운 가치를 만들어가는 개발자입니다.",
+    "저에 대해 소개하겠습니다.",
   ];
 
   useEffect(() => {
@@ -49,6 +50,22 @@ const Loader = () => {
 
   useEffect(() => {
     if (isOn) {
+      const totalDuration = 18000; // 총 진행 시간 (모든 타이머 합)
+      const interval = 100; // 프로그레스 업데이트 간격
+      let elapsed = 0;
+
+      const progressInterval = setInterval(() => {
+        elapsed += interval;
+        const newProgress = (elapsed / totalDuration) * 100;
+        
+        if (newProgress >= 100) {
+          clearInterval(progressInterval);
+          setProgress(100);
+        } else {
+          setProgress(newProgress);
+        }
+      }, interval);
+
       setTimeout(() => {
         setSwitchVisible(false);
         setShowMessages(true);
@@ -63,7 +80,7 @@ const Loader = () => {
           setMessageIndex(prev => {
             if (prev + 1 >= mobileMessages.length) {
               clearInterval(messageInterval);
-              setShowJourney(true);
+              setShowStrengths(true);
               return prev;
             }
             return prev + 1;
@@ -75,19 +92,10 @@ const Loader = () => {
           clearInterval(messageInterval);
         };
       }, 1500);
+
+      return () => clearInterval(progressInterval);
     }
   }, [isOn]);
-
-  useEffect(() => {
-    if (showJourney) {
-      const timer = setTimeout(() => {
-        setShowJourney(false);
-        setShowStrengths(true);
-      }, 9000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [showJourney]);
 
   useEffect(() => {
     if (showStrengths) {
@@ -120,6 +128,21 @@ const Loader = () => {
   return (
     <>
       <div className={`flex justify-center items-center h-screen w-screen ${isOn ? backgrounds[currentBg] : 'bg-slate-900'} transition-colors duration-1000`}>
+        {isOn && !showResult && (
+          <div className="fixed top-5 left-0 w-full px-8">
+            <div className="w-full max-w-3xl mx-auto">
+              <div className="h-2 bg-gray-200/50 rounded-full overflow-hidden backdrop-blur-sm">
+                <div 
+                  className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full transition-all duration-100 shadow-lg"
+                  style={{ 
+                    width: `${progress}%`,
+                    boxShadow: '0 0 10px rgba(147, 51, 234, 0.5)'
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
         {isLoading ? (
           <Loading />
         ) : (
@@ -133,7 +156,7 @@ const Loader = () => {
               >
                 <Switch isOn={isOn} setIsOn={setIsOn} />
               </motion.div>
-            ) : showMessages && !showJourney && !showStrengths && !showWeaknesses && !showResult ? (
+            ) : showMessages && !showStrengths && !showWeaknesses && !showResult ? (
               <AnimatePresence mode="wait">
                 <motion.div
                   key={messageIndex}
@@ -152,8 +175,6 @@ const Loader = () => {
                   <span className="block md:hidden whitespace-pre-line">{mobileMessages[messageIndex]}</span>
                 </motion.div>
               </AnimatePresence>
-            ) : showJourney ? (
-              <StudyJourneyDemo />
             ) : showStrengths ? (
               <Strengths />
             ) : showWeaknesses ? (
